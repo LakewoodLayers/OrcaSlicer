@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+: "${ORCA_DEV_PODMAN_BIN:?Podman executable is not configured.}"
+: "${ORCA_DEV_PODMAN_ROOT:?Development Podman storage is not configured.}"
+: "${ORCA_DEV_PODMAN_TMP:?Development Podman temporary storage is not configured.}"
+
+exec "$ORCA_DEV_PODMAN_BIN" \
+    --root="$ORCA_DEV_PODMAN_ROOT" \
+    --tmpdir="$ORCA_DEV_PODMAN_TMP" \
+    "$@"

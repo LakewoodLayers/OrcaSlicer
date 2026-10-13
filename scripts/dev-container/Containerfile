@@ -1,0 +1,22 @@
+ARG BUILDER_IMAGE
+FROM ${BUILDER_IMAGE}
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    dbus-x11 fonts-dejavu-core libgl1-mesa-dri locales mesa-utils novnc openbox \
+    procps python3-websockify shellcheck x11-utils x11vnc xauth xvfb \
+    && localedef -i en_US -f UTF-8 en_US.UTF-8 \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY desktop.sh /usr/local/bin/orca-dev-desktop
+ENV HOME=/state/home \
+    XDG_CONFIG_HOME=/state/home/.config \
+    XDG_DATA_HOME=/state/home/.local/share \
+    XDG_CACHE_HOME=/state/home/.cache \
+    XDG_RUNTIME_DIR=/tmp/orca-runtime \
+    DISPLAY=:99 \
+    XAUTHORITY=/state/runtime/Xauthority \
+    LIBGL_ALWAYS_SOFTWARE=1 \
+    GALLIUM_DRIVER=llvmpipe \
+    LANG=en_US.UTF-8
+WORKDIR /exchange
+ENTRYPOINT ["bash", "/usr/local/bin/orca-dev-desktop"]

@@ -51,6 +51,15 @@ ctest --test-dir ./tests/fff_print -C Release
 - Core algorithms: `src/libslic3r/` (GCode/, Fill/, Support/, Geometry/, Format/, Arachne/)
 - Printer profiles: `resources/profiles/[manufacturer].json`
 
+## Code navigation
+
+- For complex C++ work, use Serena to locate symbols, inspect their definitions, and trace only the references or implementations needed to understand the change.
+- Keep Serena queries narrow, combine related lookups where practical, and avoid repeating searches whose results are already available.
+- Prefer Serena's symbol-aware operations for targeted refactors and renames; use native tools for simple text or filename searches and small edits.
+- Read only the relevant symbols and surrounding context; read a complete file when control flow, macros, templates, or other context requires it.
+- If Serena is unavailable or its index misses relevant code, fall back to targeted native searches and file reads.
+- Minimize unnecessary MCP calls.
+
 ## Critical Constraints
 
 - **Backward compatibility required** for .3mf project files and printer profiles

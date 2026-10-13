@@ -352,6 +352,7 @@ function run_in_docker() {
     local host_user
     local -a build_args
     local -a container_env
+    local -a container_options
 
     container_cli=$(resolve_container_cli)
     runner_image=$(get_docker_runner_image)
@@ -359,6 +360,15 @@ function run_in_docker() {
     host_gid=$(id -g)
     host_user="${USER:-orca}"
     container_workspace="/__w/OrcaSlicer/OrcaSlicer"
+    container_options=()
+    # The builder drops to HOST_UID below. Map that UID to the invoking user in
+    # rootless Podman, rather than leaving build artifacts owned by a subuid.
+    if [[ "$(basename "${container_cli}")" == "podman" ]] ; then
+        container_options+=(--userns=keep-id --user=0)
+    fi
+    if [[ -n "${ORCA_CONTAINER_MEMORY:-}" ]] ; then
+        container_options+=(--memory="${ORCA_CONTAINER_MEMORY}" --memory-swap="${ORCA_CONTAINER_MEMORY}")
+    fi
     build_args=()
     for item in "${FORWARDED_ARGS[@]}" ; do
         if [[ "${item}" == "-u" ]] || [[ "${item}" == "-D" ]] ; then
@@ -388,6 +398,7 @@ function run_in_docker() {
     ensure_docker_runner_image "${container_cli}" "${runner_image}"
 
     printf '%q ' "${container_cli}" run --rm -i \
+        "${container_options[@]}" \
         -v "${SCRIPT_PATH}:${container_workspace}" \
         -w "${container_workspace}" \
         "${container_env[@]}" \
@@ -399,6 +410,7 @@ function run_in_docker() {
     fi
 
     "${container_cli}" run --rm -i \
+        "${container_options[@]}" \
         -v "${SCRIPT_PATH}:${container_workspace}" \
         -w "${container_workspace}" \
         "${container_env[@]}" \
